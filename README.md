@@ -101,9 +101,9 @@ With these rules, there is no need to wait for an extreme spike to see that some
 Instead of inspecting raw sensor values in isolation, the EWMA chart builds a statistic with memory by computing an exponentially weighted moving average. It combines the current observation with the past history of the process to smooth out random noise and detect small, persistent deviations.
 
 The weighting parameter $\lambda \in (0, 1]$ (here $\lambda = 0.20$) controls the balance between the current batch and the historical average:
-$$
+\begin{equation*}
 Z_i = \lambda X_i + (1 - \lambda) Z_{i-1}
-$$
+\end{equation*}
 where $Z_i$ is the EWMA value at batch $i$ (initialised at $Z_0 = \mu_0$), with control limits set at $\mu_0 \pm 3\sigma_0 \sqrt{\frac{\lambda}{2 - \lambda}}$.
 
 #### 4. Tabular CUSUM (Cumulative Sum) Chart

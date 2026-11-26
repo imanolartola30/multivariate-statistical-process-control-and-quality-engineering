@@ -298,9 +298,9 @@ Figure 5 presents two complementary views:
 - **Right Panel (Top 10 Feature Importances):** The horizontal bar chart displays the 10 most influential variables in the Random Forest model (with engineered SPC features highlighted in red and raw sensors in blue).
 
 Crucially, **all three of our engineered SPC features rank inside the Top 10** out of the 28 candidate variables:
-1. **`Q_log` ($\ln(1 + Q)$)** is by far the single most important predictor in the entire model, accounting for over 11% of the total decision weight (and nearly 31% of the combined importance among the top features).
-2. **`Max_z` ($\max|Z|$)** ranks 6th, capturing localized single-sensor spikes.
-3. **`T2_log` ($\ln(1 + T^2)$)** ranks 9th, quantifying global in-model shifts.
+1. **`Q_log`** is by far the single most important predictor in the entire model, accounting for over 11% of the total decision weight (and nearly 31% of the combined importance among the top features).
+2. **`Max_z`** ranks 6th, capturing localized single-sensor spikes.
+3. **`T2_log`** ranks 9th, quantifying global in-model shifts.
 
 This result provides a clear and compelling conclusion to our study: combining Multivariate Statistical Process Control (MSPC) with Machine Learning is essential. Rather than treating SPC and predictive modeling as separate disciplines, embedding PCA-based statistics ($T^2$ and $Q$) directly into the feature space provides the classifier with global structural health indicators that dramatically outperform individual noisy sensors.
 

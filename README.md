@@ -110,9 +110,11 @@ where $Z_i$ is the EWMA value at batch $i$ (initialised at $Z_0 = \mu_0$), with 
 
 #### 4. Tabular CUSUM (Cumulative Sum) Chart
 The CUSUM chart accumulates deviations exceeding a reference slack $K$ (typically $K = 0.5\sigma_0$) batch after batch in two separate accumulators: $C^+$ for upward shifts and $C^-$ for downward shifts, triggering an alarm whenever either accumulator exceeds the decision threshold $H$ (set to $H = 5\sigma_0$):
+
 $$
-C_i^+ = \max(0, C_{i-1}^+ + z_i - K), \qquad C_i^- = \max(0, C_{i-1}^- - z_i - K)
+C_i^+ = \max(0, C_{i-1}^+ + z_i - K), \qquad C_i^- = \max(0, C_{i-1}^- - z_i - K),
 $$
+
 where $z_i = \frac{X_i - \mu_0}{\sigma_0}$ is the standardized sensor reading.
 
 If the process is operating properly around $\mu_0$, small random fluctuations cancel each other out and both accumulators stay near zero. However, if a machine becomes slightly decalibrated, a shift that remains invisible on a Shewhart chart steadily adds up across consecutive batches in $C^+$ or $C^-$ until it crosses $H$.
@@ -145,12 +147,15 @@ While control charts evaluate whether a process is statistically stable over tim
 
 We evaluate two pairs of capability indices:
 - **Short-term capability ($C_p$ and $C_{pk}$):** Uses the batch-to-batch dispersion estimated via the average moving range between consecutive batches ($\sigma_{\text{within}} = \frac{\overline{MR}}{1.128}$). $C_p$ measures the potential capability (whether the natural process spread fits inside the tolerance window), whereas $C_{pk}$ measures the actual capability taking process centering into account:
+
 $$
-C_p = \frac{\text{USL} - \text{LSL}}{6\sigma_{\text{within}}}, \qquad C_{pk} = \min\left(\frac{\text{USL} - \mu}{3\sigma_{\text{within}}}, \frac{\mu - \text{LSL}}{3\sigma_{\text{within}}}\right)
+C_p = \frac{\text{USL} - \text{LSL}}{6\sigma_{\text{within}}}, \qquad C_{pk} = \min\left(\frac{\text{USL} - \mu}{3\sigma_{\text{within}}}, \frac{\mu - \text{LSL}}{3\sigma_{\text{within}}}\right).
 $$
+
 - **Overall long-term performance ($P_p$ and $P_{pk}$):** Uses the overall sample standard deviation ($\sigma_{\text{overall}} = s$) across the entire phase to capture the real long-term performance including process drift:
+
 $$
-P_p = \frac{\text{USL} - \text{LSL}}{6\sigma_{\text{overall}}}, \qquad P_{pk} = \min\left(\frac{\text{USL} - \mu}{3\sigma_{\text{overall}}}, \frac{\mu - \text{LSL}}{3\sigma_{\text{overall}}}\right)
+P_p = \frac{\text{USL} - \text{LSL}}{6\sigma_{\text{overall}}}, \qquad P_{pk} = \min\left(\frac{\text{USL} - \mu}{3\sigma_{\text{overall}}}, \frac{\mu - \text{LSL}}{3\sigma_{\text{overall}}}\right).
 $$
 
 Furthermore, because real manufacturing telemetry is not perfectly Gaussian and point estimates carry sample uncertainty, we apply non-parametric Bootstrap resampling ($B = 2,000$ resamples with replacement) on the Phase I baseline to obtain the 95% confidence interval for $C_{pk}$.
@@ -188,16 +193,20 @@ Instead of inspecting 314 separate charts, we summarise the state of the plant i
 
 #### 1. Hotelling's $T^2$
 This statistic summarises in a single number how far batch $i$ lies from the normal operating center within the $k$ principal components. Since each principal component $j$ has its own Phase I variance $\lambda_j$, we divide the squared score ($t_{i,j}^2$) of each component by its variance and sum them all:
+
 $$
-T_i^2 = \sum_{j=1}^{k} \frac{t_{i,j}^2}{\lambda_j}
+T_i^2 = \sum_{j=1}^{k} \frac{t_{i,j}^2}{\lambda_j}.
 $$
+
 Hotelling's $T^2$ monitors what happens inside the PCA model, that is, it detects whether the principal components suffer unusually large shifts in magnitude while still following their normal correlation structure.
 
 #### 2. Statistic $Q$ (Squared Prediction Error, SPE)
 This statistic monitors what happens outside the PCA model by measuring the residual error when reconstructing the 314 sensors from the $k$ principal components. It answers what happens when a sensor fails or when the physical relationship between two sensors breaks in a new direction not captured by the $k$ principal components:
+
 $$
-Q_i = \sum_{m=1}^{314} \left(X_{i,m} - \hat{X}_{i,m}\right)^2
+Q_i = \sum_{m=1}^{314} \left(X_{i,m} - \hat{X}_{i,m}\right)^2,
 $$
+
 where $\hat{X}_{i,m}$ is the reconstructed value of sensor $m$ obtained via the inverse PCA transformation (`pca.inverse_transform`) from the $k = 87$ components.
 
 #### Upper Control Limits (`UCL`) and Phase II Results
@@ -211,9 +220,11 @@ At the 99% confidence level (`P99`), Phase II triggers 19 alarms in Hotelling's 
 
 ### 4.3. Root-Cause Diagnosis: Sensor Contribution Plots
 In Section 3, when an individual chart triggered an alarm, we immediately knew which sensor was responsible. In a multivariate chart, however, a single point on $T^2$ or $Q$ summarises all 314 sensors at once. Therefore, once an alarm is triggered, we need a diagnostic tool to identify which specific sensors are responsible. We achieve this by decomposing the $Q_i$ statistic into the individual squared prediction error of each sensor:
+
 $$
-\text{Contribution}_{i,m} = \left(X_{i,m} - \hat{X}_{i,m}\right)^2
+\text{Contribution}_{i,m} = \left(X_{i,m} - \hat{X}_{i,m}\right)^2.
 $$
+
 The sensors with the largest contributions are the ones that deviated most severely from the correlation structure of the PCA model in that batch.
 
 To illustrate this root-cause diagnosis, we filter the Phase II batches that are actually defective (`Defect == 1`) and also triggered a multivariate alarm (6 defective batches at the `P99` limit, and 11 at `P95`). Taking the first detected defective batch (Batch 853, index 52 of Phase II), Figure 3 displays the Top 10 sensors with the highest contributions to $Q$:
